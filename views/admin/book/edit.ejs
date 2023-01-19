@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>User create</title>
+  </head>
+  <body>
+    <div class="container">
+      <div class="display" style="background-color: red"></div>
+      <h1 class="text-left my-5">Edit book Page</h1>
+      <%- include('../../partials/adminNavbar'); %>
+      <form>
+        <div class="error" style="background-color: red"></div>
+        <div class="form-group">
+          <label for="firstname">Name</label>
+          <input type="text" id="name" class="form-control" required />
+        </div>
+        <div class="form-group">
+          <label for="lastname">Author</label>
+          <input type="text" id="author" class="form-control" required />
+        </div>
+        <div class="form-group">
+          <label for="personalID">Number of pages</label>
+          <input type="text" id="numberOfPages" class="form-control" required />
+        </div>
+        <div class="form-group">
+          <label for="address">Year</label>
+          <input type="text" id="year" class="form-control" required />
+        </div>
+        <div class="form-group">
+          <label for="username">Title Page</label>
+          <input type="text" id="titlePageImage" class="form-control" onkeyup="showTitlePageImage()" required />
+          <br />
+          <div id="showTitlePageImage"></div>
+        </div>
+        <div class="form-group">
+          <label for="username">Image Cover</label>
+          <input type="text" id="coverImage" class="form-control" onkeyup="showCoverImage()" required />
+          <br />
+          <div id="showCoverImage"></div>
+        </div>
+        <div class="form-group">
+          <label for="personalID">Number of licenses</label>
+          <input type="text" id="numberOfLicense" class="form-control" required />
+        </div>
+        <button type="submit" class="btn btn-primary btn-block my-2">Edit</button>
+      </form>
+    </div>
+    <script>
+      const form = document.querySelector("form");
+      const nameBook = document.querySelector("#name");
+      const author = document.querySelector("#author");
+      const numberOfPages = document.querySelector("#numberOfPages");
+      const year = document.querySelector("#year");
+      const titlePageImage = document.querySelector("#titlePageImage");
+      const coverImage = document.querySelector("#coverImage");
+      const numberOfLicense = document.querySelector("#numberOfLicense");
+      var imageFirst = document.querySelector("#showTitlePageImage");
+      var imageSecond = document.querySelector("#showCoverImage");
+      const display = document.querySelector(".error");
+      const url = window.location.href.split("/");
+
+      const getUsers = async () => {
+        try {
+          const res = await fetch(`/api/auth/getBook/${url.slice(-1).pop()}`);
+          const data = await res.json();
+
+          nameBook.value = data.book.name;
+          author.value = data.book.author;
+          numberOfPages.value = data.book.numberOfPages;
+          year.value = data.book.year;
+          titlePageImage.value = data.book.titlePageImage;
+          numberOfLicense.value = data.book.numberOfLicense;
+          coverImage.value = data.book.coverImage;
+
+          if (res.status === 400 || res.status === 401) {
+            return (display.textContent = `${data.message}. ${
+              data.error ? data.error : ""
+            }`);
+          }
+
+          showTitlePageImage();
+          showCoverImage();
+        } catch (err) {
+          console.log(err.message);
+        }
+      };
+
+      form.addEventListener("submit", async (e) => {
+        e.preventDefault();
+        display.textContent = "";
+        try {
+          const res = await fetch(`/api/auth/editBook/${url.slice(-1).pop()}`, {
+            method: "PUT",
+            body: JSON.stringify({
+              name: nameBook.value,
+              author: author.value,
+              numberOfPages: numberOfPages.value,
+              year: year.value,
+              titlePageImage: titlePageImage.value,
+              coverImage: coverImage.value,
+              numberOfLicense: numberOfLicense.value,
+            }),
+            headers: { "Content-Type": "application/json" },
+          });
+          const data = await res.json();
+          if (res.status === 400 || res.status === 401) {
+            return (display.textContent = `${data.message}. ${
+              data.error ? data.error : ""
+            }`);
+          }
+          location.assign(`/admin/detail-book/${url.slice(-1).pop()}`);
+        } catch (err) {
+          console.log(err.message);
+        }
+      });
+
+      const showTitlePageImage = async () => {
+        const img = `<img src="${titlePageImage.value}" />`;
+        imageFirst.innerHTML = img;
+      };
+
+      const showCoverImage = async () => {
+        const img = `<img src="${coverImage.value}" />`;
+        imageSecond.innerHTML = img;
+      };
+
+      getUsers();
+    </script>
+  </body>
+</html>

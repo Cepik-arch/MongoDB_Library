@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Register Page</title>
+  </head>
+    <body>
+      <%- include('../views/partials/bootstrap'); %>
+    <div class="container my-5">
+      <div class="row">
+        <div class="col-lg-6 mx-auto">
+          <h1 class="mb-5">Register Page</h1>
+          <form>
+            <div class="error" style="background-color: red"></div>
+            <div class="form-group">
+              <label for="firstname">Firstname</label>
+              <input type="text" id="firstname" class="form-control" required />
+            </div>
+            <div class="form-group">
+              <label for="lastname">Lastname</label>
+              <input type="text" id="password" class="form-control" required />
+            </div>
+            <div class="form-group">
+              <label for="personalID">Personal ID</label>
+              <input type="text" id="personalID" class="form-control" required />
+            </div>
+            <div class="form-group">
+              <label for="address">Address</label>
+              <input type="text" id="address" class="form-control" required />
+            </div>
+            <div class="form-group">
+              <label for="username">Username</label>
+              <input type="text" id="username" class="form-control" required />
+            </div>
+            <div class="form-group">
+              <label for="password">Password</label>
+              <input type="password" id="password" class="form-control" required />
+            </div>
+            <div class="form-group">
+              <label for="confPassword">Confirm Password</label>
+              <input type="password" id="confPassword" class="form-control" required />
+            </div>
+            <button type="submit" class="btn btn-primary btn-block my-2">Register</button>
+          </form>
+          <div class="mt-3">
+            <a href="/login">Already have an account? Login</a>
+          </div>
+        </div>
+      </div>
+    </div>
+    <script>
+      const form = document.querySelector("form");
+      const firstname = document.querySelector("#firstname");
+      const lastname = document.querySelector("#lastname");
+      const personalID = document.querySelector("#personalID");
+      const address = document.querySelector("#address");
+      const username = document.querySelector("#username");
+      const password = document.querySelector("#password");
+      const confPassword = document.querySelector("#confPassword");
+      const display = document.querySelector(".error");
+      form.addEventListener("submit", async (e) => {
+        e.preventDefault();
+        display.textContent = "";
+        try {
+          const res = await fetch("/api/auth/register", {
+            method: "POST",
+            body: JSON.stringify({
+              firstname: firstname.value,
+              lastname: lastname.value,
+              personalID: personalID.value,
+              address: address.value,
+              username: username.value,
+              password: password.value,
+              confPassword: confPassword.value,
+            }),
+            headers: { "Content-Type": "application/json" },
+          });
+          const data = await res.json();
+          if (res.status === 400 || res.status === 401) {
+            return (display.textContent = `${data.message}. ${
+              data.error ? data.error : ""
+            }`);
+          }
+          data.role === "Admin"
+            ? location.assign("/admin")
+            : location.assign("/user");
+        } catch (err) {}
+      });
+    </script>
+  </body>
+</html>

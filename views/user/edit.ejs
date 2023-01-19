@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>User create</title>
+  </head>
+  <body>
+    <div class="container">
+      <div class="display" style="background-color: red"></div>
+      <h1 class="text-left my-5">Edit user Page</h1>
+      <%- include('../partials/userNavbar'); %>
+      <form>
+        <div class="error" style="background-color: red"></div>
+        <div class="form-group">
+          <label for="firstname">Firstname</label>
+          <input type="text" id="firstname" class="form-control" required />
+        </div>
+        <div class="form-group">
+          <label for="lastname">Lastname</label>
+          <input type="text" id="lastname" class="form-control" required />
+        </div>
+        <div class="form-group">
+          <label for="personalID">Personal ID</label>
+          <input type="text" id="personalID" class="form-control" required />
+        </div>
+        <div class="form-group">
+          <label for="address">Address</label>
+          <input type="text" id="address" class="form-control" required />
+        </div>
+        <div class="form-group">
+          <label for="username">Username</label>
+          <input type="text" id="username" class="form-control" required />
+        </div>
+        <button type="submit" class="btn btn-primary btn-block my-2">Edit</button>
+      </form>
+    </div>
+    <script>
+      const form = document.querySelector("form");
+      const firstname = document.querySelector("#firstname");
+      const lastname = document.querySelector("#lastname");
+      const personalID = document.querySelector("#personalID");
+      const address = document.querySelector("#address");
+      const username = document.querySelector("#username");
+      const password = document.querySelector("#password");
+      const display = document.querySelector(".error");
+      const url = window.location.href.split("/");
+
+      const getUser = async () => {
+        try {
+          const res = await fetch(`/api/auth/getUser/${url.slice(-1).pop()}`);
+          const data = await res.json();
+
+          firstname.value = data.user.firstname;
+          lastname.value = data.user.lastname;
+          personalID.value = data.user.personalID;
+          address.value = data.user.address;
+          username.value = data.user.username;
+
+          if (res.status === 400 || res.status === 401) {
+            return (display.textContent = `${data.message}. ${
+              data.error ? data.error : ""
+            }`);
+          }
+        } catch (err) {
+          console.log(err.message);
+        }
+      };
+
+      form.addEventListener("submit", async (e) => {
+        e.preventDefault();
+        display.textContent = "";
+        try {
+          const res = await fetch(
+            `/api/auth/editUserByUser/${url.slice(-1).pop()}`,
+            {
+              method: "PUT",
+              body: JSON.stringify({
+                firstname: firstname.value,
+                lastname: lastname.value,
+                personalID: personalID.value,
+                address: address.value,
+                username: username.value,
+              }),
+              headers: { "Content-Type": "application/json" },
+            }
+          );
+          const data = await res.json();
+          if (res.status === 400 || res.status === 401) {
+            return (display.textContent = `${data.message}. ${
+              data.error ? data.error : ""
+            }`);
+          }
+          location.assign(`/user`);
+        } catch (err) {
+          console.log(err.message);
+        }
+      });
+
+      getUser();
+    </script>
+  </body>
+</html>

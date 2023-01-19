@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Admin page</title>
+  </head>
+  <body>
+    <div class="container">
+      <div class="display" style="background-color: red"></div>
+      <h1 class="text-left my-5">Admin dashboard</h1>
+      <%- include('../partials/adminNavbar'); %>
+      <div class="counter"></div>
+    </div>
+    <script>
+      const div = document.querySelector(".counter");
+      const display = document.querySelector(".display");
+      const getCount = async () => {
+        const res = await fetch("/api/auth/getNumberOfUnconfirmedUsers");
+        const data = await res.json();
+        let number = `
+        <h3>Unconfirmed users: ${data.counter} <a href="/admin/unconfirmed-users">Confirm users</a></h3>
+        `;
+        div.innerHTML += number;
+
+        if (res.status === 400 || res.status === 401) {
+          return (display.textContent = `${data.message}. ${
+            data.error ? data.error : ""
+          }`);
+        }
+      };
+      getCount();
+    </script>
+  </body>
+</html>
